@@ -4,10 +4,28 @@ import { z } from "zod";
 import { randomUUID } from "node:crypto";
 
 export async function usersRoute(app: FastifyInstance) {
-  app.get("/", async () => {
-    const users = await knex("users").select("*");
+  app.get("/:sessionId", async (request, reply) => {
+    try {
+      const sessionIdRequestSchema = z.object({
+        sessionId: z.string().uuid(),
+      });
 
-    return users;
+      const { sessionId } = sessionIdRequestSchema.parse(request.params);
+
+      if (!sessionId) {
+        reply.status(400).send();
+        throw new Error("Null or missing the sessionId");
+      }
+
+      const user = await knex("users").where({
+        session_id: sessionId,
+      });
+
+      return user;
+    } catch (error: any) {
+      console.error(error.message);
+      throw new Error(error.error);
+    }
   });
 
   app.post("/", async (request, reply) => {
