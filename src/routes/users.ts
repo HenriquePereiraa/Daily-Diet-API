@@ -37,7 +37,7 @@ export async function usersRoute(app: FastifyInstance) {
 
       const { name, email } = createUserBodySchema.parse(request.body);
 
-      if (name === null || email === null) {
+      if (!name || !name.trim() || !email || !email.trim()) {
         throw new Error("Null or missing the name or email!");
       }
 
@@ -65,6 +65,65 @@ export async function usersRoute(app: FastifyInstance) {
         email,
         session_id: sessionId,
       });
+    } catch (error: any) {
+      console.error(error.message);
+      throw new Error(error.error);
+    }
+  });
+
+  app.put("/:id", async (request, reply) => {
+    try {
+      const userIdRequestSchema = z.object({
+        id: z.string().uuid(),
+      });
+
+      const { id } = userIdRequestSchema.parse(request.params);
+
+      const userId = await knex("users").where({
+        id,
+      });
+
+      if (!userId) {
+        reply.status(400).send();
+      }
+
+      const updateUserBodySchema = z.object({
+        name: z.string(),
+      });
+
+      const { name } = updateUserBodySchema.parse(request.body);
+
+      if (!name || !name.trim()) {
+        reply.status(400).send();
+        throw new Error("Null or missing the name and email!");
+      }
+
+      await knex("users").update({
+        name,
+      });
+    } catch (error: any) {
+      console.error(error.message);
+      throw new Error(error.error);
+    }
+  });
+
+  app.delete("/:id", async (request, reply) => {
+    try {
+      const userIdRequestSchema = z.object({
+        id: z.string().uuid(),
+      });
+
+      const { id } = userIdRequestSchema.parse(request.params);
+
+      const userId = await knex("users").where({
+        id,
+      });
+
+      if (!userId) {
+        reply.status(400).send();
+      }
+
+      await knex("users").where({ id }).del();
     } catch (error: any) {
       console.error(error.message);
       throw new Error(error.error);
