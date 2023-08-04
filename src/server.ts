@@ -3,6 +3,7 @@ import { env } from "./env";
 import cookie from "@fastify/cookie";
 import { usersRoute } from "./routes/users";
 import { loginRoute } from "./routes/login";
+import { logoutRoute } from "./routes/logout";
 
 const app = fastify();
 
@@ -13,7 +14,11 @@ app.register(usersRoute, {
 });
 
 app.register(loginRoute, {
-  prefix: "login", 
+  prefix: "login",
+});
+
+app.register(logoutRoute, {
+  prefix: "logout",
 });
 
 app
