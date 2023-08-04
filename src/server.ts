@@ -13,7 +13,7 @@ app.register(usersRoute, {
 });
 
 app.register(loginRoute, {
-  prefix: "login",
+  prefix: "login", 
 });
 
 app
