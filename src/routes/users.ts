@@ -43,7 +43,9 @@ export async function usersRoute(app: FastifyInstance) {
 
       const hasEmailInDatabase = await knex("users").where({
         email,
-      });
+      }).first();
+
+      console.log(hasEmailInDatabase)
 
       if (hasEmailInDatabase) {
         reply.status(400).send();
