@@ -73,16 +73,17 @@ export async function mealRoute(app: FastifyInstance) {
           session_id: sessionId,
         })
         .first();
+
       if (!user) {
         reply.status(400).send();
         throw new Error("User not found!");
       }
 
-      const meal = await knex("meal").where({
+      const meals = await knex("meal").where({
         user_meal_id: user.id,
       });
 
-      return reply.status(201).send(meal);
+      return reply.status(201).send(meals);
     } catch (error: any) {
       console.error(error.message);
       throw new Error(error.error);
