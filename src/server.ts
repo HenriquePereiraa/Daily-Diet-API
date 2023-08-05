@@ -4,6 +4,7 @@ import cookie from "@fastify/cookie";
 import { usersRoute } from "./routes/users";
 import { loginRoute } from "./routes/login";
 import { logoutRoute } from "./routes/logout";
+import { mealRoute } from "./routes/meal";
 
 const app = fastify();
 
@@ -19,6 +20,10 @@ app.register(loginRoute, {
 
 app.register(logoutRoute, {
   prefix: "logout",
+});
+
+app.register(mealRoute, {
+  prefix: "meal",
 });
 
 app
