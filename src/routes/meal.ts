@@ -59,4 +59,35 @@ export async function mealRoute(app: FastifyInstance) {
       throw new Error(error.error);
     }
   });
+
+  app.get("/", async (request, reply) => {
+    try {
+      const sessionIdSchema = z.object({
+        sessionId: z.string().uuid(),
+      });
+
+      const { sessionId } = sessionIdSchema.parse(request.cookies);
+
+      const user = await knex("users")
+        .where({
+          session_id: sessionId,
+        })
+        .first();
+ 
+      if (!user) {
+        reply.status(400).send();
+        throw new Error("User not found!");
+      }
+
+      const meal = await knex("meal")
+        .where({
+          user_meal_id: user.id,
+        })
+
+      console.log(meal);
+    } catch (error: any) {
+      console.error(error.message);
+      throw new Error(error.error);
+    }
+  });
 }
