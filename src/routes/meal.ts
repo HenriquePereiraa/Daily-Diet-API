@@ -108,4 +108,37 @@ export async function mealRoute(app: FastifyInstance) {
       throw new Error(error.error);
     }
   });
+
+  app.put("/:id", async (request, reply) => {
+    try {
+      const idParamsSchema = z.object({
+        id: string().uuid(),
+      });
+
+      const { id } = idParamsSchema.parse(request.params);
+
+      const dataMealBodySchema = z.object({
+        name: z.string().nonempty(),
+        description: z.string().nonempty(),
+        in_diet: z.boolean(),
+      });
+
+      const { name, description, in_diet } = dataMealBodySchema.parse(
+        request.body
+      );
+
+      await knex("meal")
+        .where({
+          id,
+        })
+        .update({
+          name,
+          description,
+          in_diet,
+        });
+    } catch (error: any) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  });
 }
