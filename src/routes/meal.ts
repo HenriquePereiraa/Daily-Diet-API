@@ -73,7 +73,6 @@ export async function mealRoute(app: FastifyInstance) {
           session_id: sessionId,
         })
         .first();
-
       if (!user) {
         reply.status(400).send();
         throw new Error("User not found!");
@@ -84,6 +83,7 @@ export async function mealRoute(app: FastifyInstance) {
       });
 
       return reply.status(201).send(meal);
+
     } catch (error: any) {
       console.error(error.message);
       throw new Error(error.error);
