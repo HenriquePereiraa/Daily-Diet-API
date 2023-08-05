@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { z } from "zod";
+import { string, z } from "zod";
 import { knex } from "../database";
 import { randomUUID } from "crypto";
 
@@ -84,6 +84,25 @@ export async function mealRoute(app: FastifyInstance) {
       });
 
       return reply.status(201).send(meals);
+    } catch (error: any) {
+      console.error(error.message);
+      throw new Error(error.error);
+    }
+  });
+
+  app.get("/:id", async (request, reply) => {
+    try {
+      const idParamsSchema = z.object({
+        id: string().uuid(),
+      });
+
+      const { id } = idParamsSchema.parse(request.params);
+
+      const meal = await knex("meal").where({
+        id,
+      });
+
+      return reply.status(201).send(meal);
     } catch (error: any) {
       console.error(error.message);
       throw new Error(error.error);
