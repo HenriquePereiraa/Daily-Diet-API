@@ -171,4 +171,19 @@ export async function mealRoute(app: FastifyInstance) {
       reply.status(500).send({ message: "Error updating record" });
     }
   });
+
+  app.delete("/:id", async (request, reply) => {
+    try {
+      const idParamsSchema = z.object({
+        id: string().uuid(),
+      });
+
+      const { id } = idParamsSchema.parse(request.params);
+
+      await knex("meal").where({ id }).delete();
+    } catch (error: any) {
+      console.error(error.message);
+      reply.status(500).send({ message: "Error updating record" });
+    }
+  });
 }
