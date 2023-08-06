@@ -184,6 +184,39 @@ export async function mealRoute(app: FastifyInstance) {
     }
   });
 
+  app.get("/out-diet", async (request, reply) => {
+    try {
+      const sessionIdSchema = z.object({
+        sessionId: z.string().uuid(),
+      });
+
+      const { sessionId } = sessionIdSchema.parse(request.cookies);
+
+      const user = await knex("users")
+        .where({
+          session_id: sessionId,
+        })
+        .first();
+
+      if (!user) {
+        reply.status(400).send();
+        throw new Error("User not found!");
+      }
+
+      const amountMealsInDiet = await knex("meal")
+        .where({
+          user_meal_id: user.id,
+          in_diet: false,
+        }).count("id",{as:"count"})
+        .first();
+
+      return reply.status(200).send(amountMealsInDiet);
+    } catch (error: any) {
+      console.error(error.message);
+      reply.status(500).send({ message: "Error when counting" });
+    }
+  });
+
   app.put("/:id", async (request, reply) => {
     try {
       const idParamsSchema = z.object({
