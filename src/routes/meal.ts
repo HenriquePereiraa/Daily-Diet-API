@@ -1,7 +1,16 @@
 import { FastifyInstance } from "fastify";
-import { string, z } from "zod";
+import { object, string, z } from "zod";
 import { knex } from "../database";
 import { randomUUID } from "crypto";
+
+interface Meal {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
+  in_diet: boolean;
+  user_meal_id: string;
+}
 
 export async function mealRoute(app: FastifyInstance) {
   app.post("/", async (request, reply) => {
@@ -139,6 +148,27 @@ export async function mealRoute(app: FastifyInstance) {
     } catch (error: any) {
       console.error(error.message);
       throw new Error(error.message);
+    }
+  });
+
+  app.patch("/:id", async (request, reply) => {
+    try {
+      const idParamsSchema = z.object({
+        id: string().uuid(),
+      });
+
+      const { id } = idParamsSchema.parse(request.params);
+
+      const data = request.body as Meal;
+
+      await knex("meal")
+        .where({
+          id,
+        })
+        .update(data);
+    } catch (error: any) {
+      console.error(error.message);
+      reply.status(500).send({ message: "Error updating record" });
     }
   });
 }
