@@ -174,7 +174,8 @@ export async function mealRoute(app: FastifyInstance) {
         .where({
           user_meal_id: user.id,
           in_diet: true,
-        }).count("id",{as:"count"})
+        })
+        .count("id", { as: "count" })
         .first();
 
       return reply.status(200).send(amountMealsInDiet);
@@ -207,13 +208,63 @@ export async function mealRoute(app: FastifyInstance) {
         .where({
           user_meal_id: user.id,
           in_diet: false,
-        }).count("id",{as:"count"})
+        })
+        .count("id", { as: "count" })
         .first();
 
       return reply.status(200).send(amountMealsInDiet);
     } catch (error: any) {
       console.error(error.message);
       reply.status(500).send({ message: "Error when counting" });
+    }
+  });
+
+  app.get("/sequence-diet", async (request, reply) => {
+    try {
+      const sessionIdSchema = z.object({
+        sessionId: z.string().uuid(),
+      });
+
+      const { sessionId } = sessionIdSchema.parse(request.cookies);
+
+      const user = await knex("users")
+        .where({
+          session_id: sessionId,
+        })
+        .first();
+
+      if (!user) {
+        reply.status(400).send();
+        throw new Error("User not found!");
+      }
+
+      const meals = await knex("meal").where({
+        user_meal_id: user.id,
+      });
+
+      const bestSequence = meals.reduce(
+        (result, currentValue) => {
+          if (currentValue.in_diet) {
+            result.currentSequence++;
+            result.maxSequence = Math.max(
+              result.currentSequence,
+              result.maxSequence
+            );
+          } else {
+            result.currentSequence = 0;
+          }
+
+          return result;
+        },
+        { currentSequence: 0, maxSequence: 0 }
+      );
+
+      const bestSequenceInDiet = bestSequence.maxSequence;
+
+      reply.status(201).send(bestSequenceInDiet);
+    } catch (error: any) {
+      console.error(error.message);
+      throw new Error(error.error);
     }
   });
 
