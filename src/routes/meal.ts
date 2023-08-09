@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { object, string, z } from "zod";
 import { knex } from "../database";
 import { randomUUID } from "crypto";
+import { checkSessionIdExist } from "../middlewares/check-session-id-exist";
 
 interface Meal {
   id: string;
@@ -13,14 +14,9 @@ interface Meal {
 }
 
 export async function mealRoute(app: FastifyInstance) {
-  app.post("/", async (request, reply) => {
+  app.post("/",{preHandler:[checkSessionIdExist]}, async (request, reply) => {
     try {
       const { sessionId } = request.cookies;
-
-      if (!sessionId) {
-        reply.status(400).send();
-        throw new Error("Cookie not found!");
-      }
 
       const user = await knex("users")
         .where({
@@ -69,13 +65,9 @@ export async function mealRoute(app: FastifyInstance) {
     }
   });
 
-  app.get("/", async (request, reply) => {
+  app.get("/",{preHandler:[checkSessionIdExist]}, async (request, reply) => {
     try {
-      const sessionIdSchema = z.object({
-        sessionId: z.string().uuid(),
-      });
-
-      const { sessionId } = sessionIdSchema.parse(request.cookies);
+      const { sessionId } = request.cookies;
 
       const user = await knex("users")
         .where({
@@ -118,13 +110,9 @@ export async function mealRoute(app: FastifyInstance) {
     }
   });
 
-  app.get("/amount-meals", async (request, reply) => {
+  app.get("/amount-meals",{preHandler:[checkSessionIdExist]}, async (request, reply) => {
     try {
-      const sessionIdSchema = z.object({
-        sessionId: z.string().uuid(),
-      });
-
-      const { sessionId } = sessionIdSchema.parse(request.cookies);
+      const { sessionId } = request.cookies
 
       const user = await knex("users")
         .where({
@@ -151,13 +139,9 @@ export async function mealRoute(app: FastifyInstance) {
     }
   });
 
-  app.get("/in-diet", async (request, reply) => {
+  app.get("/in-diet",{preHandler:[checkSessionIdExist]}, async (request, reply) => {
     try {
-      const sessionIdSchema = z.object({
-        sessionId: z.string().uuid(),
-      });
-
-      const { sessionId } = sessionIdSchema.parse(request.cookies);
+      const { sessionId } = request.cookies;
 
       const user = await knex("users")
         .where({
@@ -185,13 +169,9 @@ export async function mealRoute(app: FastifyInstance) {
     }
   });
 
-  app.get("/out-diet", async (request, reply) => {
+  app.get("/out-diet",{preHandler:[checkSessionIdExist]}, async (request, reply) => {
     try {
-      const sessionIdSchema = z.object({
-        sessionId: z.string().uuid(),
-      });
-
-      const { sessionId } = sessionIdSchema.parse(request.cookies);
+      const { sessionId } = request.cookies;
 
       const user = await knex("users")
         .where({
@@ -219,13 +199,9 @@ export async function mealRoute(app: FastifyInstance) {
     }
   });
 
-  app.get("/sequence-diet", async (request, reply) => {
+  app.get("/sequence-diet",{preHandler:[checkSessionIdExist]}, async (request, reply) => {
     try {
-      const sessionIdSchema = z.object({
-        sessionId: z.string().uuid(),
-      });
-
-      const { sessionId } = sessionIdSchema.parse(request.cookies);
+      const { sessionId } = request.cookies;
 
       const user = await knex("users")
         .where({
