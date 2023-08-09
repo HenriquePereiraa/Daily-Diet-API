@@ -1,8 +1,9 @@
 import { FastifyInstance } from "fastify";
-import { object, string, z } from "zod";
+import { z } from "zod";
 import { knex } from "../database";
 import { randomUUID } from "crypto";
 import { checkSessionIdExist } from "../middlewares/check-session-id-exist";
+import { checkId } from "../utils/check-id";
 
 interface Meal {
   id: string;
@@ -93,11 +94,7 @@ export async function mealRoute(app: FastifyInstance) {
 
   app.get("/:id", async (request, reply) => {
     try {
-      const idParamsSchema = z.object({
-        id: string().uuid(),
-      });
-
-      const { id } = idParamsSchema.parse(request.params);
+      const id = await checkId(request, reply)
 
       const meal = await knex("meal").where({
         id,
@@ -247,7 +244,7 @@ export async function mealRoute(app: FastifyInstance) {
   app.put("/:id", async (request, reply) => {
     try {
       const idParamsSchema = z.object({
-        id: string().uuid(),
+        id: z.string().uuid(),
       });
 
       const { id } = idParamsSchema.parse(request.params);
@@ -280,7 +277,7 @@ export async function mealRoute(app: FastifyInstance) {
   app.patch("/:id", async (request, reply) => {
     try {
       const idParamsSchema = z.object({
-        id: string().uuid(),
+        id: z.string().uuid(),
       });
 
       const { id } = idParamsSchema.parse(request.params);
@@ -301,7 +298,7 @@ export async function mealRoute(app: FastifyInstance) {
   app.delete("/:id", async (request, reply) => {
     try {
       const idParamsSchema = z.object({
-        id: string().uuid(),
+        id: z.string().uuid(),
       });
 
       const { id } = idParamsSchema.parse(request.params);

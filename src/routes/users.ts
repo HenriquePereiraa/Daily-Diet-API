@@ -45,8 +45,6 @@ export async function usersRoute(app: FastifyInstance) {
         email,
       }).first();
 
-      console.log(hasEmailInDatabase)
-
       if (hasEmailInDatabase) {
         reply.status(400).send();
         throw new Error(
