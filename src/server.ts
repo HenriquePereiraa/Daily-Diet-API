@@ -1,33 +1,9 @@
-import fastify from "fastify";
+import { app } from "./app";
 import { env } from "./env";
-import cookie from "@fastify/cookie";
-import { usersRoute } from "./routes/users";
-import { loginRoute } from "./routes/login";
-import { logoutRoute } from "./routes/logout";
-import { mealRoute } from "./routes/meal";
-
-const app = fastify();
-
-app.register(cookie);
-
-app.register(usersRoute, {
-  prefix: "user",
-});
-
-app.register(loginRoute, {
-  prefix: "login",
-});
-
-app.register(logoutRoute, {
-  prefix: "logout",
-});
-
-app.register(mealRoute, {
-  prefix: "meal",
-});
 
 app
   .listen({
+    host: "0.0.0.0",
     port: env.PORT,
   })
   .then(() => {

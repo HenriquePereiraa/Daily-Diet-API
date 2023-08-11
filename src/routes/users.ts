@@ -2,6 +2,7 @@ import { FastifyInstance } from "fastify";
 import { knex } from "../database";
 import { z } from "zod";
 import { randomUUID } from "node:crypto";
+import { unsubscribe } from "node:diagnostics_channel";
 
 export async function usersRoute(app: FastifyInstance) {
   app.get("/:sessionId", async (request, reply) => {
@@ -17,11 +18,13 @@ export async function usersRoute(app: FastifyInstance) {
         throw new Error("Null or missing the sessionId");
       }
 
-      const user = await knex("users").where({
-        session_id: sessionId,
-      });
+      const user = await knex("users")
+        .where({
+          session_id: sessionId,
+        })
+        .first();
 
-      return user;
+      return reply.status(200).send(user);
     } catch (error: any) {
       console.error(error.message);
       throw new Error(error.error);
@@ -67,6 +70,8 @@ export async function usersRoute(app: FastifyInstance) {
         email,
         session_id: sessionId,
       });
+
+      return reply.status(201).send();
     } catch (error: any) {
       console.error(error.message);
       throw new Error(error.error);
