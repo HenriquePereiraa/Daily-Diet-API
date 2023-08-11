@@ -41,9 +41,11 @@ export async function usersRoute(app: FastifyInstance) {
         throw new Error("Null or missing the name or email!");
       }
 
-      const hasEmailInDatabase = await knex("users").where({
-        email,
-      }).first();
+      const hasEmailInDatabase = await knex("users")
+        .where({
+          email,
+        })
+        .first();
 
       if (hasEmailInDatabase) {
         reply.status(400).send();
@@ -115,15 +117,19 @@ export async function usersRoute(app: FastifyInstance) {
 
       const { id } = userIdRequestSchema.parse(request.params);
 
-      const userId = await knex("users").where({
-        id,
-      });
+      const userId = await knex("users")
+        .where({
+          id,
+        })
+        .first();
 
       if (!userId) {
-        reply.status(400).send();
+        reply.status(400).send({ error: "User not found" });
       }
 
-      await knex("users").where({ id }).del();
+      await knex.raw("PRAGMA foreign_keys = ON;");
+
+      await knex("users").where({ id }).delete();
     } catch (error: any) {
       console.error(error.message);
       throw new Error(error.error);
