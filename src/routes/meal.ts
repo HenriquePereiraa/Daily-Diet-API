@@ -28,12 +28,15 @@ export async function mealRoute(app: FastifyInstance) {
           })
           .first();
 
+
         if (!user) {
           reply.status(400).send();
           throw new Error("User not found!");
         }
 
         const { id } = user;
+
+        
 
         const mealDataBodySchema = z.object({
           name: z.string(),
@@ -63,6 +66,8 @@ export async function mealRoute(app: FastifyInstance) {
           in_diet,
           user_meal_id: id,
         });
+
+        return reply.status(201).send();
       } catch (error: any) {
         console.error(error.message);
         throw new Error(error.error);
@@ -92,7 +97,7 @@ export async function mealRoute(app: FastifyInstance) {
           user_meal_id: user.id,
         });
 
-        return reply.status(201).send(meals);
+        return reply.status(200).send(meals);
       } catch (error: any) {
         console.error(error.message);
         throw new Error(error.error);
@@ -106,9 +111,9 @@ export async function mealRoute(app: FastifyInstance) {
 
       const meal = await knex("meal").where({
         id,
-      });
+      }).first();
 
-      return reply.status(201).send(meal);
+      return reply.status(200).send(meal);
     } catch (error: any) {
       console.error(error.message);
       throw new Error(error.error);
